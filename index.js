@@ -8,10 +8,10 @@ const port = 3000;
 app.use(express.json());
 
 const pool = new Pool({
-    host: '',
+    host: 'db.fdattmhrbmommrymhbyx.supabase.co',
     port: '5432',
     database: 'postgres',
-    password: '',
+    password: 'Nikte2019++',
     user:'postgres'
 });
 
