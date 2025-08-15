@@ -1,64 +1,37 @@
+// Servidor estático minimal, listo para balanceo
 const express = require('express');
-const { Pool } = require('pg');
-
+const path = require('path');
+const compression = require('compression');
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000; // cambia por ENV: 3000, 3001, 3002...
 
-app.use(express.json());
+app.disable('x-powered-by');
+app.set('trust proxy', true); // útil detrás de Nginx/Apache
 
-const pool = new Pool({
-    host: 'db.fdattmhrbmommrymhbyx.supabase.co',
-    port: '5432',
-    database: 'postgres',
-    password: 'Nikte2019++',
-    user:'postgres'
+// Compresión gzip
+app.use(compression());
+
+// Servir /public con cache ligera
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1h',
+  etag: true,
+  index: 'index.html'
+}));
+
+// Healthcheck para el balanceador
+app.get('/health', (_, res) => res.type('text').send('ok'));
+
+// (Opcional) info rápida
+app.get('/version', (_, res) => {
+  res.json({ name: 'mi-pagina', version: process.env.APP_VERSION || '1.0.0', port: PORT });
 });
 
-app.get('/usuarios', async (req, res)=>{
-try{
-    const {rows} = await pool.query(
-        'SELECT * FROM personas'
-    );
-    const response = {
-        ok: true,
-        message: `datos desde el puerto ${port}`,
-        data: rows
-    };
-
-    res.json(response);
-
-
-    
-}catch(error){
-    console.error(error.stack);
-    res.status(500).json({error: 'error del servidor'});
-
-}});
-
-app.post('/usuarios', async (req, res)=>{
-    const {nombres, apellidos, carnet} = req.body;
-    if(!nombres || !apellidos || !carnet){
-        return res.status(400).json({ error: 'el nombre y el apellido son campos requierido'})
-    }
-
-    try{
-        const sqlQuery = 'INSERT INTO personas (nombres, apellidos, carnet) VALUES($1, $2, $3) RETURNING *';
-        const values = [nombres, apellidos, carnet];
-
-        const {rows} = await pool.query(sqlQuery, values);
-        res.status(201).json(rows[0]);
-    }catch (error){
-        if (error.code === '23505') {
-        return res.status(409).json({ error: 'El email ya se encuentra registrado.' });
-    }
-    // Para cualquier otro error, enviamos un error 500
-    console.error('Error al insertar el usuario:', error.stack);
-    res.status(500).json({ error: 'Error interno del servidor' });
-    }
+// Fallback a index.html (por si luego usas rutas en el front)
+app.get('*', (_, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-
-app.listen(port, ()=>{
-    console.log(`servidor activo en el puerto: ${port}`)
-})
+app.listen(PORT, () => {
+  console.log(`Servidor estático escuchando en http://localhost:${PORT}`);
+});
