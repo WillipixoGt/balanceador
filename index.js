@@ -32,6 +32,16 @@ app.get('*', (_, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Ruta para verificar qué nodo responde
+app.get('/info', (req, res) => {
+  res.json({
+    ok: true,
+    node: NODE_NAME,
+    port: PORT,
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor estático escuchando en http://localhost:${PORT}`);
 });
