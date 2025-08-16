@@ -1,17 +1,19 @@
 {
-  "name": "suprabase",
+  "name": "nodo2",
   "version": "1.0.0",
   "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
     "desa": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^5.1.0",
-    "nodemon": "^3.1.10",
-    "pg": "^8.16.3"
+    "compression": "^1.7.4",
+    "express": "^4.19.2",
+    "pg": "^8.16.3",
+    "nodemon": "^3.1.10"
   }
 }
