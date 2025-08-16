@@ -4,8 +4,8 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "start": "node index.js",
-    "desa": "nodemon index.js"
+    "start": "node server.js",
+    "desa": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
